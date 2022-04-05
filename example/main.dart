@@ -126,4 +126,5 @@ Future<void> main(List<String> arguments) async {
 
   print(String.fromCharCodes(
       (await WebPush.decrypt(keyz, Uint8List.fromList(bytes)))));
+  print(keyz.tob64);
 }

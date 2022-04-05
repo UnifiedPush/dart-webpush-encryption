@@ -29,10 +29,10 @@ class WebPush {
 
 class WebPushKeys {
   final List<int> _pubKey;
-  final List<int> _privKey;
   final Uint8List authKey;
+  final List<int> _privKey;
 
-  WebPushKeys(this._pubKey, this._privKey, this.authKey);
+  WebPushKeys(this._pubKey, this.authKey, this._privKey);
 
   static Future<WebPushKeys> fromMap(Map<String, List<int>> keys) async {
     var pub = keys['p256dh'], priv = keys['priv'], auth = keys['auth'];
@@ -40,11 +40,27 @@ class WebPushKeys {
     if (pub != null && priv != null && auth != null) {
       throw ArgumentError('Missing one of p256dh, priv, or auth in Map');
     }
-    //make sure keys are valid
-    await EcdhPublicKey.importRawKey(pub!, CURVE);
-    await EcdhPrivateKey.importPkcs8Key(priv!, CURVE);
+    return WebPushKeys(pub!, Uint8List.fromList(auth!), priv!)._validate();
+  }
 
-    return WebPushKeys(pub, priv, Uint8List.fromList(auth!));
+  static Future<WebPushKeys> fromBase64(String base64str) {
+    var split = base64str.split('+');
+
+    if (split.length < 3) {
+      throw ArgumentError('Missing one or more of p256dh, priv, or auth');
+    }
+
+    return WebPushKeys(base64Decode(split[0]), base64Decode(split[1]),
+            base64Decode(split[2]))
+        ._validate();
+  }
+
+  Future<WebPushKeys> _validate() async {
+    assert(authKey.length == 16);
+    await pubKey;
+    await privKey;
+
+    return this;
   }
 
   static Future<WebPushKeys> random() async {
@@ -52,26 +68,26 @@ class WebPushKeys {
     fillRandomBytes(authKey);
 
     var p256dhKeyPair = await EcdhPrivateKey.generateKey(CURVE);
-    return WebPushKeys(await p256dhKeyPair.privateKey.exportPkcs8Key(),
-        await p256dhKeyPair.publicKey.exportRawKey(), authKey);
+    return WebPushKeys(await p256dhKeyPair.publicKey.exportRawKey(), authKey, await p256dhKeyPair.privateKey.exportPkcs8Key());
   }
 
 // getters
   Future<EcdhPublicKey> get pubKey =>
       EcdhPublicKey.importRawKey(_pubKey, CURVE);
 
+  String get pubKeyWeb => base64UrlEncode(_pubKey);
+  String get authWeb => base64UrlEncode(authKey);
+
   Future<EcdhPrivateKey> get privKey =>
       EcdhPrivateKey.importPkcs8Key(_privKey, CURVE);
 
 // export
-  Map<String, String> get publicKeysWeb => {
-        'p256dh': base64Url.encode(_pubKey),
-        'auth': base64Url.encode(authKey),
-      };
-
   Map<String, List<int>> get allKeysRaw => {
         'p256dh': _pubKey,
         'auth': authKey,
         'priv': _privKey,
       };
+
+  String get toBase64 =>
+      pubKeyWeb + '+' + authWeb + '+' + base64Url.encode(_privKey);
 }
