@@ -1,6 +1,6 @@
 # Dart Webpush encryption library
 
-This library helps facilitate WebPush decryption in Dart.
+This library helps facilitate WebPush decryption in Dart. If you just want to use WebPush in your Dart/Flutter app this is NOT for you. There will be another library that integrates UnifiedPush and WebPush into an easy to use package.
 
 
 
