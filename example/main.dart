@@ -3,7 +3,7 @@ import 'dart:typed_data';
 
 import 'package:webcrypto/webcrypto.dart';
 
-import 'webpush.dart';
+import 'package:webpush_encryption/webpush.dart';
 
 Future<void> main(List<String> arguments) async {
   List<int> bytes = [
