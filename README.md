@@ -10,7 +10,7 @@ See example/simple.dart.
 There are two main classes here, WebPushKeys, and WebPush.
 
 In WebPush keys:
-1. Use `.random()) generate a new key.
+1. Use `.random()` generate a new key.
 1. Use `.pubKeyWeb` and `.authWeb` to export the keys into the base64 encoding that can be sent to a server. `.pubKeyWeb` corresponds to `p256dh` in the spec and `.authWeb` is `auth`.
 1. Use `.toBase64` to serialize the public *AND private keys* for storage. Be careful with this since it contains the private key.
    Then, use `WebPushKeys.fromBase64` to unserialize that back into an object from the stored string.

@@ -15,13 +15,18 @@ class KeyError extends DecryptionError {
   KeyError([dynamic message, String? name]) : super(message, name);
 }
 
+/// Contains decryption method and code
 class WebPush {
-  static Future<Uint8List> decrypt(WebPushKeys keys, Uint8List buf) async {
+  /// decrypts
+  ///
+  /// Throws DecryptionError (or a subclass) in case of an issue.
+  static Future<Uint8List> decrypt(
+      WebPushKeys keys, Uint8List encryptedBytes) async {
     try {
-      Header header = await Header.fromRaw(buf);
+      Header header = await Header.fromRaw(encryptedBytes);
 
       //only one record in webpush, so whole rest of body is record
-      var record = buf.sublist(header.length);
+      var record = encryptedBytes.sublist(header.length);
 
       var serverPubKey = header.id;
 
@@ -39,6 +44,7 @@ class WebPush {
   }
 }
 
+/// Stores the public, private, auth key needed for webpush.
 class WebPushKeys {
   final List<int> _pubKey;
   final Uint8List _authKey;
@@ -66,6 +72,7 @@ class WebPushKeys {
         ._validate();
   }
 
+  /// Deserializes the output of [toBase64]. Used for retrieval of keys from storage.
   static Future<WebPushKeys> fromBase64(String base64str) {
     var split = base64str.split('+');
 
@@ -78,6 +85,18 @@ class WebPushKeys {
             authKeyBytes: base64Decode(split[1]),
             privKeyBytes: base64Decode(split[2]))
         ._validate();
+  }
+
+  /// Generate a new, random keyset.
+  static Future<WebPushKeys> random() async {
+    var authKey = Uint8List(16);
+    fillRandomBytes(authKey);
+
+    var p256dhKeyPair = await EcdhPrivateKey.generateKey(curve);
+    return WebPushKeys(
+        pubKeyBytes: await p256dhKeyPair.publicKey.exportRawKey(),
+        authKeyBytes: authKey,
+        privKeyBytes: await p256dhKeyPair.privateKey.exportPkcs8Key());
   }
 
   Future<WebPushKeys> _validate() async {
@@ -96,24 +115,22 @@ class WebPushKeys {
     return this;
   }
 
-  static Future<WebPushKeys> random() async {
-    var authKey = Uint8List(16);
-    fillRandomBytes(authKey);
-
-    var p256dhKeyPair = await EcdhPrivateKey.generateKey(curve);
-    return WebPushKeys(
-        pubKeyBytes: await p256dhKeyPair.publicKey.exportRawKey(),
-        authKeyBytes: authKey,
-        privKeyBytes: await p256dhKeyPair.privateKey.exportPkcs8Key());
-  }
-
 // getters
+  /// Get key in webcrypto format
   Future<EcdhPublicKey> get pubKey =>
       EcdhPublicKey.importRawKey(_pubKey, curve);
 
+  /// aka `p256dh`. Get the base64Url encoded public key to send to application server.
+  ///
+  ///This should be paired with [authWeb].
   String get pubKeyWeb => base64UrlEncode(_pubKey);
+
+  /// aka `auth`. Get the base64Url encoded authentication key to send to application server.
+  ///
+  /// This should be paired with [pubKeyWeb].
   String get authWeb => base64UrlEncode(_authKey);
 
+  ///Get key in webcrypto format
   Future<EcdhPrivateKey> get privKey =>
       EcdhPrivateKey.importPkcs8Key(_privKey, curve);
 
@@ -124,6 +141,7 @@ class WebPushKeys {
         'priv': _privKey,
       };
 
+  /// Serializes public *and private* keys for storage. Deserialize with [WebPushKeys.fromBase64()]
   String get toBase64 =>
       pubKeyWeb + '+' + authWeb + '+' + base64Url.encode(_privKey);
 }
