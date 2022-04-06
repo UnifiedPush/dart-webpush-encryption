@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:webpush_encryption/webpush.dart';
+import 'package:webpush_encryption/webpush_encryption.dart';
 import 'simple.dart' show myPresetMessage;
 
 Future<void> main(List<String> arguments) async {

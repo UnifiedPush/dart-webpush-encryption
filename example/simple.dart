@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:webpush_encryption/webpush.dart';
+import 'package:webpush_encryption/webpush_encryption.dart';
 
 Future<void> main(List<String> arguments) async {
   var keyz = await WebPushKeys.random();
@@ -11,7 +11,7 @@ Future<void> main(List<String> arguments) async {
   print(keyz.authWeb); // both are already encoded to base64Url
 
 //then you can import it back into an object  (this is a different set of keys to demonstrate)
-    keyz = await WebPushKeys.fromBase64(
+  keyz = await WebPushKeys.fromBase64(
       "BGviCUiE9bL6HqxXZRLKb3pmHYGq24acYDoE-Hy2aZM9h2gIx0jrQTWh2ksIaFegv6yUQLkpbV7984w0IpvlT-Y=+AAAAAAAAAAAAAAAAAAAAAA==+MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQga-gpVIxZJHJ_uUx9ON45Lm5Owp5qbM3o7u0p0qrmoZqhRANCAARr4glIhPWy-h6sV2USym96Zh2BqtuGnGA6BPh8tmmTPYdoCMdI60E1odpLCGhXoL-slEC5KW1e_fOMNCKb5U_m");
 
   var decrypted = await WebPush.decrypt(

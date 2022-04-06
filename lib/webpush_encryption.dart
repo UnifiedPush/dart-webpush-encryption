@@ -5,7 +5,7 @@ import 'dart:typed_data';
 
 import 'package:webcrypto/webcrypto.dart';
 
-import 'ece.dart';
+import 'src/ece.dart';
 
 class DecryptionError extends ArgumentError {
   DecryptionError([dynamic message, String? name]) : super(message, name);
