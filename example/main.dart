@@ -122,9 +122,10 @@ Future<void> main(List<String> arguments) async {
       Uint8List(16));
 
   print(keyz.allKeysRaw);
-  print(keyz.publicKeysWeb);
+  print(keyz.pubKeyWeb);
+  print(keyz.authWeb);
 
   print(String.fromCharCodes(
       (await WebPush.decrypt(keyz, Uint8List.fromList(bytes)))));
-  print(keyz.tob64);
+  print(keyz.toBase64);
 }
