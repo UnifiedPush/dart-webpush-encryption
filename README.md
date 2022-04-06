@@ -1,6 +1,6 @@
 # Dart Webpush encryption library
 
-This library helps facilitate WebPush decryption in Dart. If you just want to receive WebPush notifications on Android in your Flutter app this library is NOT for you, check out the dart library [`unifiedpush_webpush`](https://github.com/UnifiedPush/flutter-connector-webpush).
+This library helps facilitate WebPush decryption in Dart. If you just want to receive WebPush notifications on Android in your Flutter app this library is NOT for you, check out the flutter library [`unifiedpush_webpush`](https://github.com/UnifiedPush/flutter-connector-webpush).
 This is primarily an RFC 8291 (Message Encryption for Web Push) implementation, however, it implements the same basics as RFC 8188 (Encrypted Content-Encoding for HTTP).
 
 ## Usage
