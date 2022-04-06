@@ -1,4 +1,3 @@
-import 'dart:ffi';
 import 'dart:math';
 import 'dart:typed_data';
 
@@ -54,12 +53,10 @@ static Future<Uint8List> nonce(
     return AesGcmSecretKey.importRawKey(contentEncryptionKeyBytes);
   }
 
-
-
 //technically recordnum is uint96, but I don't even know
   static Future<Uint8List> decryptRecord(
       AesGcmSecretKey key, Uint8List nonce, Uint8List content) async {
-    var cleartext = await key.decryptBytes(content, await nonce,
+    var cleartext = await key.decryptBytes(content, nonce,
         tagLength: _contentEncryptionKeySize * 8);
 
     return stripPadding(cleartext);
@@ -75,11 +72,9 @@ static Future<Uint8List> nonce(
     }
     return content.sublist(0, paddingIndex);
   }
-
-  
 }
 
-const CURVE = EllipticCurve.p256;
+const curve = EllipticCurve.p256;
 
 class Header {
   final Uint8List salt;
@@ -105,7 +100,7 @@ class Header {
 
     var serverPubKeyBytes = buf.sublist(offset, offset + serverPubKeySize);
     offset += serverPubKeyBytes.length;
-    var serverPubKey = EcdhPublicKey.importRawKey(serverPubKeyBytes, CURVE);
+    var serverPubKey = EcdhPublicKey.importRawKey(serverPubKeyBytes, curve);
 
     return Header(salt, recordSize, serverPubKeySize, await serverPubKey);
   }

@@ -1,7 +1,6 @@
 // Apache 2.0 2022 Simon Ser
 
 import 'dart:convert';
-import 'dart:ffi';
 import 'dart:typed_data';
 
 import 'package:webcrypto/webcrypto.dart';
@@ -67,19 +66,20 @@ class WebPushKeys {
     var authKey = Uint8List(16);
     fillRandomBytes(authKey);
 
-    var p256dhKeyPair = await EcdhPrivateKey.generateKey(CURVE);
-    return WebPushKeys(await p256dhKeyPair.publicKey.exportRawKey(), authKey, await p256dhKeyPair.privateKey.exportPkcs8Key());
+    var p256dhKeyPair = await EcdhPrivateKey.generateKey(curve);
+    return WebPushKeys(await p256dhKeyPair.publicKey.exportRawKey(), authKey,
+        await p256dhKeyPair.privateKey.exportPkcs8Key());
   }
 
 // getters
   Future<EcdhPublicKey> get pubKey =>
-      EcdhPublicKey.importRawKey(_pubKey, CURVE);
+      EcdhPublicKey.importRawKey(_pubKey, curve);
 
   String get pubKeyWeb => base64UrlEncode(_pubKey);
   String get authWeb => base64UrlEncode(authKey);
 
   Future<EcdhPrivateKey> get privKey =>
-      EcdhPrivateKey.importPkcs8Key(_privKey, CURVE);
+      EcdhPrivateKey.importPkcs8Key(_privKey, curve);
 
 // export
   Map<String, List<int>> get allKeysRaw => {
