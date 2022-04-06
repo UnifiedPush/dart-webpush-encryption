@@ -36,7 +36,7 @@ class ECE {
     return HkdfSecretKey.importRawKey(ikm);
   }
 
-static Future<Uint8List> nonce(
+  static Future<Uint8List> nonce(
       HkdfSecretKey hkdfSecretKey, List<int> salt, int recordNum) async {
     List<int> info = [...'Content-Encoding: nonce'.codeUnits, 0];
 // it needs to xor or something for records > 0
