@@ -31,7 +31,14 @@ class WebPushKeys {
   final Uint8List authKey;
   final List<int> _privKey;
 
-  WebPushKeys(this._pubKey, this.authKey, this._privKey);
+  //WebPushKeys(this._pubKey, this.authKey, this._privKey); // FUTURE PERSON: don't do positional because messing up the order of the args is very easy
+  WebPushKeys(
+      {required List<int> pubKeyBytes,
+      required Uint8List authKeyBytes,
+      required List<int> privKeyBytes})
+      : _pubKey = pubKeyBytes,
+        _privKey = privKeyBytes,
+        _authKey = authKeyBytes;
 
   static Future<WebPushKeys> fromMap(Map<String, List<int>> keys) async {
     var pub = keys['p256dh'], priv = keys['priv'], auth = keys['auth'];
@@ -39,7 +46,11 @@ class WebPushKeys {
     if (pub != null && priv != null && auth != null) {
       throw ArgumentError('Missing one of p256dh, priv, or auth in Map');
     }
-    return WebPushKeys(pub!, Uint8List.fromList(auth!), priv!)._validate();
+    return WebPushKeys(
+            pubKeyBytes: pub!,
+            authKeyBytes: Uint8List.fromList(auth!),
+            privKeyBytes: priv!)
+        ._validate();
   }
 
   static Future<WebPushKeys> fromBase64(String base64str) {
@@ -67,8 +78,10 @@ class WebPushKeys {
     fillRandomBytes(authKey);
 
     var p256dhKeyPair = await EcdhPrivateKey.generateKey(curve);
-    return WebPushKeys(await p256dhKeyPair.publicKey.exportRawKey(), authKey,
-        await p256dhKeyPair.privateKey.exportPkcs8Key());
+    return WebPushKeys(
+        pubKeyBytes: await p256dhKeyPair.publicKey.exportRawKey(),
+        authKeyBytes: authKey,
+        privKeyBytes: await p256dhKeyPair.privateKey.exportPkcs8Key());
   }
 
 // getters
