@@ -7,22 +7,35 @@ import 'package:webcrypto/webcrypto.dart';
 
 import 'ece.dart';
 
+class DecryptionError extends ArgumentError {
+  DecryptionError([dynamic message, String? name]) : super(message, name);
+}
+
+class KeyError extends DecryptionError {
+  KeyError([dynamic message, String? name]) : super(message, name);
+}
+
 class WebPush {
   static Future<Uint8List> decrypt(WebPushKeys keys, Uint8List buf) async {
-    Header header = await Header.fromRaw(buf);
+    try {
+      Header header = await Header.fromRaw(buf);
 
-    //only one record in webpush, so whole rest of body is record
-    var record = buf.sublist(header.length);
+      //only one record in webpush, so whole rest of body is record
+      var record = buf.sublist(header.length);
 
-    var serverPubKey = header.id;
+      var serverPubKey = header.id;
 
-    var ikm = await ECE.makeIKM(
-        await keys.pubKey, await keys.privKey, keys.authKey, serverPubKey);
+      var ikm = await ECE.makeIKM(
+          await keys.pubKey, await keys.privKey, keys._authKey, serverPubKey);
 
-    var aesSecretKey = ECE.getContentKey(ikm, header.salt);
-    var aesNonce = ECE.nonce(ikm, header.salt, 0);
+      var aesSecretKey = ECE.getContentKey(ikm, header.salt);
+      var aesNonce = ECE.nonce(ikm, header.salt, 0);
 
-    return ECE.decryptRecord(await aesSecretKey, await aesNonce, record);
+      return ECE.decryptRecord(await aesSecretKey, await aesNonce, record);
+    } catch (e) {
+      throw DecryptionError(e,
+          'something is wrong'); // TODO, throw more granular errors, subclass them under DecryptionError so applications can just catch DecryptionError
+    }
   }
 }
 
@@ -60,15 +73,25 @@ class WebPushKeys {
       throw ArgumentError('Missing one or more of p256dh, priv, or auth');
     }
 
-    return WebPushKeys(base64Decode(split[0]), base64Decode(split[1]),
-            base64Decode(split[2]))
+    return WebPushKeys(
+            pubKeyBytes: base64Decode(split[0]),
+            authKeyBytes: base64Decode(split[1]),
+            privKeyBytes: base64Decode(split[2]))
         ._validate();
   }
 
   Future<WebPushKeys> _validate() async {
-    assert(authKey.length == 16);
-    await pubKey;
-    await privKey;
+    try {
+      assert(_authKey.length == 16);
+      await pubKey;
+      await privKey;
+    } catch (e) {
+      if (e is FormatException && e.message.contains("INVALID_ENCODING")) {
+        throw KeyError(e, 'Invalid Key');
+      }
+      if (e is AssertionError) throw KeyError(e, 'Auth Key');
+      rethrow;
+    }
 
     return this;
   }
