@@ -41,7 +41,7 @@ class WebPush {
 
 class WebPushKeys {
   final List<int> _pubKey;
-  final Uint8List authKey;
+  final Uint8List _authKey;
   final List<int> _privKey;
 
   //WebPushKeys(this._pubKey, this.authKey, this._privKey); // FUTURE PERSON: don't do positional because messing up the order of the args is very easy
@@ -112,7 +112,7 @@ class WebPushKeys {
       EcdhPublicKey.importRawKey(_pubKey, curve);
 
   String get pubKeyWeb => base64UrlEncode(_pubKey);
-  String get authWeb => base64UrlEncode(authKey);
+  String get authWeb => base64UrlEncode(_authKey);
 
   Future<EcdhPrivateKey> get privKey =>
       EcdhPrivateKey.importPkcs8Key(_privKey, curve);
@@ -120,7 +120,7 @@ class WebPushKeys {
 // export
   Map<String, List<int>> get allKeysRaw => {
         'p256dh': _pubKey,
-        'auth': authKey,
+        'auth': _authKey,
         'priv': _privKey,
       };
 
