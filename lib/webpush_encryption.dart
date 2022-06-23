@@ -72,8 +72,8 @@ class WebPushKeys {
         ._validate();
   }
 
-  /// Deserializes the output of [toBase64]. Used for retrieval of keys from storage.
-  static Future<WebPushKeys> fromBase64(String base64str) {
+  /// Deserializes the output of [serialize]. Used for retrieval of keys from storage.
+  static Future<WebPushKeys> deserialize(String base64str) {
     var split = base64str.split('+');
 
     if (split.length < 3) {
@@ -88,7 +88,7 @@ class WebPushKeys {
   }
 
   /// Generate a new, random keyset.
-  static Future<WebPushKeys> random() async {
+  static Future<WebPushKeys> newKeyPair() async {
     var authKey = Uint8List(16);
     fillRandomBytes(authKey);
 
@@ -120,28 +120,28 @@ class WebPushKeys {
   Future<EcdhPublicKey> get pubKey =>
       EcdhPublicKey.importRawKey(_pubKey, curve);
 
-  /// aka `p256dh`. Get the base64Url encoded public key to send to application server.
+  /// Get the base64Url encoded public key to send to application server.
   ///
-  ///This should be paired with [authWeb].
-  String get pubKeyWeb => base64UrlEncode(_pubKey);
+  ///This should be paired with [auth].
+  String get p256dh => base64UrlEncode(_pubKey);
 
   /// aka `auth`. Get the base64Url encoded authentication key to send to application server.
   ///
-  /// This should be paired with [pubKeyWeb].
-  String get authWeb => base64UrlEncode(_authKey);
+  /// This should be paired with [p256dh].
+  String get auth => base64UrlEncode(_authKey);
 
   ///Get key in webcrypto format
   Future<EcdhPrivateKey> get privKey =>
       EcdhPrivateKey.importPkcs8Key(_privKey, curve);
 
 // export
-  Map<String, List<int>> get allKeysRaw => {
+  Map<String, List<int>> get rawKeys => {
         'p256dh': _pubKey,
         'auth': _authKey,
         'priv': _privKey,
       };
 
-  /// Serializes public *and private* keys for storage. Deserialize with [WebPushKeys.fromBase64()]
-  String get toBase64 =>
-      pubKeyWeb + '+' + authWeb + '+' + base64Url.encode(_privKey);
+  /// Serializes public *and private* keys for storage. Deserialize with [WebPushKeys.deserialize()]
+  String get serialize =>
+      p256dh + '+' + auth + '+' + base64Url.encode(_privKey);
 }
