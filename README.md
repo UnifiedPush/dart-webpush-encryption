@@ -20,6 +20,19 @@ The `WebPush`class contains only one method:
 
 Note: Be careful to not encode the encrypted bytes as a UTF-8 string anywhere between the HTTP request and decryption; UTF-8 encoding will probably mess up your content.
 
+## Installing this package
+
+This package can only be used as a git dependency, and cannot be published to pub.dev because it relies on a git version of webcrypto that has not been published to pub.dev.
+To use this package, add the following to your pubspec.yaml
+
+```yaml
+dependencies:
+  webpush_encryption:
+    git:
+      url: https://github.com/UnifiedPush/dart-webpush-encryption.git
+      ref: v0.1.0
+```
+
 
 ## Credits
 
