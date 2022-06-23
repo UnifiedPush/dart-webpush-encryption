@@ -10,15 +10,15 @@ See example/simple.dart.
 There are two main classes here, WebPushKeys, and WebPush.
 
 In WebPush keys:
-1. Use `.random()` generate a new key.
-1. Use `.pubKeyWeb` and `.authWeb` to export the keys into the base64 encoding that can be sent to a server. `.pubKeyWeb` corresponds to `p256dh` in the spec and `.authWeb` is `auth`.
-1. Use `.toBase64` to serialize the public *AND private keys* for storage. Be careful with this since it contains the private key.
-   Then, use `WebPushKeys.fromBase64` to unserialize that back into an object from the stored string.
+1. Use `.newKeyPair()` generate a new key.
+1. Use `.p256dh` and `.auth` to export the keys into the base64 encoding that can be sent to a server.
+1. Use `.serialize` to serialize the public *AND private keys* for storage. Be careful with this since it contains the private key.
+   Then, use `WebPushKeys.deserialize` to deserialize that back into an object from the stored string.
 
 The `WebPush`class contains only one method:
 1. `.decrypt(WebPushKeys keys, Uint8List buf)`. Pass in the keys object and an array of Bytes of the message body. It will return the decrypted bytes.
 
-Note: Be careful to not encode the encrypted buffer as a UTF-8 string anywhere between the HTTP request and decryption; UTF-8 encoding will probably mess up your content.
+Note: Be careful to not encode the encrypted bytes as a UTF-8 string anywhere between the HTTP request and decryption; UTF-8 encoding will probably mess up your content.
 
 
 ## Credits
