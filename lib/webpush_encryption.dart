@@ -93,27 +93,27 @@ class WebPush {
 class WebPushKeys {
   final List<int> _pubKey;
   final Uint8List _authKey;
-  final List<int> _privKey;
+  final List<int>? _privKey;
 
   //WebPushKeys(this._pubKey, this.authKey, this._privKey); // FUTURE PERSON: don't do positional because messing up the order of the args is very easy
-  WebPushKeys(
-      {required List<int> pubKeyBytes,
-      required Uint8List authKeyBytes,
-      required List<int> privKeyBytes})
-      : _pubKey = pubKeyBytes,
+  WebPushKeys({
+    required List<int> pubKeyBytes,
+    required Uint8List authKeyBytes,
+    List<int>? privKeyBytes,
+  })  : _pubKey = pubKeyBytes,
         _privKey = privKeyBytes,
         _authKey = authKeyBytes;
 
   static Future<WebPushKeys> fromMap(Map<String, List<int>> keys) async {
     var pub = keys['p256dh'], priv = keys['priv'], auth = keys['auth'];
 
-    if (pub != null && priv != null && auth != null) {
+    if (pub != null && auth != null) {
       throw ArgumentError('Missing one of p256dh, priv, or auth in Map');
     }
     return WebPushKeys(
             pubKeyBytes: pub!,
             authKeyBytes: Uint8List.fromList(auth!),
-            privKeyBytes: priv!)
+            privKeyBytes: priv)
         ._validate();
   }
 
@@ -121,8 +121,15 @@ class WebPushKeys {
   static Future<WebPushKeys> deserialize(String base64str) {
     var split = base64str.split('+');
 
-    if (split.length < 3) {
-      throw ArgumentError('Missing one or more of p256dh, priv, or auth');
+    if (split.length < 2) {
+      throw ArgumentError('Missing one or more of p256dh or auth');
+    }
+
+    if (split.length == 2) {
+      return WebPushKeys(
+        pubKeyBytes: base64Decode(split[0]),
+        authKeyBytes: base64Decode(split[1]),
+      )._validate();
     }
 
     return WebPushKeys(
@@ -148,7 +155,7 @@ class WebPushKeys {
     try {
       assert(_authKey.length == 16);
       await pubKey;
-      await privKey;
+      if (_privKey != null) await privKey;
     } catch (e) {
       if (e is FormatException && e.message.contains("INVALID_ENCODING")) {
         throw KeyError(e, 'Invalid Key');
@@ -176,17 +183,25 @@ class WebPushKeys {
   String get auth => base64UrlEncode(_authKey);
 
   ///Get key in webcrypto format
-  Future<EcdhPrivateKey> get privKey =>
-      EcdhPrivateKey.importPkcs8Key(_privKey, curve);
+  Future<EcdhPrivateKey> get privKey {
+    if (_privKey == null) {
+      throw 'Public WebPushKeys';
+    }
+    return EcdhPrivateKey.importPkcs8Key(_privKey!, curve);
+  }
 
 // export
   Map<String, List<int>> get rawKeys => {
         'p256dh': _pubKey,
         'auth': _authKey,
-        'priv': _privKey,
+        if (_privKey != null) 'priv': _privKey!,
       };
 
   /// Serializes public *and private* keys for storage. Deserialize with [WebPushKeys.deserialize()]
-  String get serialize =>
-      p256dh + '+' + auth + '+' + base64Url.encode(_privKey);
+  String get serialize {
+    if (_privKey != null) {
+      return p256dh + '+' + auth + '+' + base64Url.encode(_privKey!);
+    }
+    return p256dh + '+' + auth;
+  }
 }
