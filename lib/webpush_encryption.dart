@@ -11,6 +11,10 @@ class DecryptionError extends ArgumentError {
   DecryptionError([dynamic message, String? name]) : super(message, name);
 }
 
+class EncryptionError extends ArgumentError {
+  EncryptionError([dynamic message, String? name]) : super(message, name);
+}
+
 class KeyError extends DecryptionError {
   KeyError([dynamic message, String? name]) : super(message, name);
 }
@@ -40,6 +44,47 @@ class WebPush {
     } catch (e) {
       throw DecryptionError(e,
           'something is wrong'); // TODO, throw more granular errors, subclass them under DecryptionError so applications can just catch DecryptionError
+    }
+  }
+
+  /// Encrypts [plaintext] following RFC8291.
+  ///
+  /// Uses public and private [serverKeys] with public and authkey [clientKeys].
+  ///
+  /// [salt] is optional and will be filled with cryptographically random bytes
+  /// if it is not provided. This is mostly useful for debugging.
+  static Future<Uint8List> encrypt({
+    required WebPushKeys serverKeys,
+    required WebPushKeys clientKeys,
+    required Uint8List plaintext,
+    Uint8List? salt,
+  }) async {
+    try {
+      if (salt == null) {
+        salt = Uint8List(16);
+        fillRandomBytes(salt);
+      }
+      final uaPubKey = await clientKeys.pubKey;
+      final asPubKey = await serverKeys.pubKey;
+
+      final ikm = await ECE.makeIKMServer(
+          asPubKey, await serverKeys.privKey, clientKeys._authKey, uaPubKey);
+
+      final aesSecretKey = await ECE.getContentKey(ikm, salt);
+      final aesNonce = await ECE.nonce(ikm, salt, 0);
+
+      final asRawPubKey = await asPubKey.exportRawKey();
+
+      final cipherText =
+          await ECE.encryptRecord(aesSecretKey, aesNonce, plaintext);
+      final header = Header(salt, 4096, asRawPubKey.length, asPubKey);
+
+      return Uint8List.fromList([
+        ...await header.toRaw(),
+        ...cipherText,
+      ]);
+    } catch (e) {
+      throw EncryptionError(e);
     }
   }
 }
