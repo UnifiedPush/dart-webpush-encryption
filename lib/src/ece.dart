@@ -3,6 +3,8 @@ import 'dart:typed_data';
 
 import 'package:webcrypto/webcrypto.dart';
 
+import 'curve.dart';
+
 const _saltSize = 16;
 const _contentEncryptionKeySize = 16;
 
@@ -109,8 +111,6 @@ class ECE {
     return content.sublist(0, paddingIndex);
   }
 }
-
-const curve = EllipticCurve.p256;
 
 class Header {
   final Uint8List salt;

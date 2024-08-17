@@ -6,8 +6,8 @@ Future<void> main(List<String> arguments) async {
   var keyz = await WebPushKeys.newKeyPair();
   keyz.serialize; // store this to shared preferences or whatever storage mechanism you want to use
 
-  print(keyz.p256dh); //send these to the application server
-  print(keyz.auth); // both are already encoded to base64Url
+  print(keyz.publicKey!.p256dh); //send these to the application server
+  print(keyz.publicKey!.auth); // both are already encoded to base64Url
 
 //then you can import it back into an object  (this is a different set of keys to demonstrate)
   keyz = await WebPushKeys.deserialize(
