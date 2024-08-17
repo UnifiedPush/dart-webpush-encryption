@@ -59,7 +59,7 @@ void main() async {
   final salt = base64Decode(
     'DGv6ra1nlYgDCS1FRnbzlw==', // cspell:disable-line
   );
-  final cipherText = await WebPush.encrypt(
+  final cipherText = await WebPush().encrypt(
       serverKeys: server,
       clientKeys: uaPublic,
       salt: salt,
@@ -68,7 +68,7 @@ void main() async {
   final cipherText64 = base64Url.encode(cipherText);
 
   final plainText =
-      String.fromCharCodes(await WebPush.decrypt(uaPrivate, cipherText));
+      String.fromCharCodes(await WebPush().decrypt(uaPrivate, cipherText));
   print('''
 RFC8291 Example:
   plainText: $plainText

@@ -15,7 +15,7 @@ class WebPush {
   /// decrypts
   ///
   /// Throws DecryptionError (or a subclass) in case of an issue.
-  static Future<Uint8List> decrypt(
+  Future<Uint8List> decrypt(
     WebPushKeySet keys,
     Uint8List encryptedBytes,
   ) async {
@@ -39,8 +39,8 @@ class WebPush {
 
       return ECE.decryptRecord(await aesSecretKey, await aesNonce, record);
     } catch (e) {
-      throw DecryptionError(e,
-          'something is wrong'); // TODO, throw more granular errors, subclass them under DecryptionError so applications can just catch DecryptionError
+      // TODO, throw more granular errors, subclass them under DecryptionError so applications can just catch DecryptionError
+      throw DecryptionError(e, 'something is wrong');
     }
   }
 
@@ -50,7 +50,7 @@ class WebPush {
   ///
   /// [salt] is optional and will be filled with cryptographically random bytes
   /// if it is not provided. This is mostly useful for debugging.
-  static Future<Uint8List> encrypt({
+  Future<Uint8List> encrypt({
     required WebPushKeySet serverKeys,
     required PublicWebPushKey clientKeys,
     required Uint8List plaintext,

@@ -38,5 +38,5 @@ Future<void> main(List<String> arguments) async {
 
   //the decrypt method
   print(String.fromCharCodes(
-      (await WebPush.decrypt(keyz, Uint8List.fromList(myPresetMessage)))));
+      (await WebPush().decrypt(keyz, Uint8List.fromList(myPresetMessage)))));
 }

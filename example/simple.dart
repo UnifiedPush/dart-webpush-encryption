@@ -13,7 +13,7 @@ Future<void> main(List<String> arguments) async {
   keyz = await WebPushKeySet.deserialize(
       "BGviCUiE9bL6HqxXZRLKb3pmHYGq24acYDoE-Hy2aZM9h2gIx0jrQTWh2ksIaFegv6yUQLkpbV7984w0IpvlT-Y=+AAAAAAAAAAAAAAAAAAAAAA==+MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQga-gpVIxZJHJ_uUx9ON45Lm5Owp5qbM3o7u0p0qrmoZqhRANCAARr4glIhPWy-h6sV2USym96Zh2BqtuGnGA6BPh8tmmTPYdoCMdI60E1odpLCGhXoL-slEC5KW1e_fOMNCKb5U_m");
 
-  var decrypted = await WebPush.decrypt(
+  var decrypted = await WebPush().decrypt(
     keyz, // you private keys
     myPresetMessage, // the message bytes that were received from the server
   );
