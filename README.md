@@ -19,8 +19,9 @@ The `WebPush`class contains two methods:
 1. `.decrypt(keys, encryptedBytes)`. Pass in the keys object and an array of Bytes of the message body. It will return the decrypted bytes.
 2. `.encrypt(serverKeys, clientPubKey, plaintext, salt?)`: Encrypt the plaintext according to the webpush standard.
 
-[!IMPORTANT]
-Do not encode the encrypted bytes as a UTF-8 string anywhere between the HTTP request and decryption; UTF-8 encoding will probably mess up your content.
+> Important
+>
+> Do not encode the encrypted bytes as a UTF-8 string anywhere between the HTTP request and decryption; UTF-8 encoding will probably mess up your content.
 
 ## Installing this package
 
