@@ -13,8 +13,8 @@ const expectedCipherText =
     'DGv6ra1nlYgDCS1FRnbzlwAAEABBBP4z9KsN6nGRTbVYI_c7VJSPQTBtkgcy27mlmlMoZIIgDll6e3vCYLocInmYWAmS6TlzAC8wEqKK6PBru3jl7A_yl95bQpu6cVPTpK4Mqgkf1CXztLVBSt2Ks3oZwbuwXPXLWyouBWLVWGNWQexSgSxsj_Qulcy4a-fN';
 
 void main() async {
-  final server = WebPushKeys(
-    publicKey: WebPublicPushKey(
+  final server = WebPushKeySet(
+    publicKey: PublicWebPushKey(
       publicKeyBytes: base64Decode(
         'BP4z9KsN6nGRTbVYI_c7VJSPQTBtkgcy27mlmlMoZIIgDll6e3vCYLocInmYWAmS6TlzAC8wEqKK6PBru3jl7A8=',
       ),
@@ -23,15 +23,15 @@ void main() async {
     // Private key was in X9.62 uncompressed and needed to be converted with:
     //   openssl pkcs8 -topk8 -in ec.priv -out my.pkcs8.key -nocrypt
     // private key: yfWPiYE-n46HLnH0KqZOF1fJJU3MYrct3AELtAQ-oRw
-    privateKey: WebPrivatePushKey(
+    privateKey: PrivateWebPushKey(
       privateKeyBytes: base64Decode(
         'MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgyfWPiYE+n46HLnH0KqZOF1fJJU3MYrct3AELtAQ+oRyhRANCAAT+M/SrDepxkU21WCP3O1SUj0EwbZIHMtu5pZpTKGSCIA5Zent7wmC6HCJ5mFgJkuk5cwAvMBKiiujwa7t45ewP',
       ),
     ),
   );
 
-  final uaPrivate = WebPushKeys(
-    publicKey: WebPublicPushKey(
+  final uaPrivate = WebPushKeySet(
+    publicKey: PublicWebPushKey(
       publicKeyBytes: base64Decode(
         'BCVxsr7N_eNgVRqvHtD0zTZsEc6-VV-JvLexhqUzORcxaOzi6-AYWXvTBHm4bjyPjs7Vd8pZGH6SRpkNtoIAiw4=',
       ),
@@ -40,21 +40,19 @@ void main() async {
     // Private key was in X9.62 uncompressed and needed to be converted with:
     //   openssl pkcs8 -topk8 -in ec.priv -out my.pkcs8.key -nocrypt
     // private key: q1dXpw3UpT5VOmu_cf_v6ih07Aems3njxI-JWgLcM94
-    privateKey: WebPrivatePushKey(
+    privateKey: PrivateWebPushKey(
       privateKeyBytes: base64Decode(
           'MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgq1dXpw3UpT5VOmu/cf/v6ih07Aems3njxI+JWgLcM96hRANCAAQlcbK+zf3jYFUarx7Q9M02bBHOvlVfiby3sYalMzkXMWjs4uvgGFl70wR5uG48j47O1XfKWRh+kkaZDbaCAIsO'),
     ),
   );
 
   // What would be sent to the server.
-  final uaPublic = WebPushKeys(
-    publicKey: WebPublicPushKey(
-      publicKeyBytes: base64Decode(
-        'BCVxsr7N_eNgVRqvHtD0zTZsEc6-VV-JvLexhqUzORcxaOzi6-AYWXvTBHm4bjyPjs7Vd8pZGH6SRpkNtoIAiw4=',
-      ),
-      authKeyBytes: base64Decode(
-        'BTBZMqHH6r4Tts7J_aSIgg==', // cspell:disable-line
-      ),
+  final uaPublic = PublicWebPushKey(
+    publicKeyBytes: base64Decode(
+      'BCVxsr7N_eNgVRqvHtD0zTZsEc6-VV-JvLexhqUzORcxaOzi6-AYWXvTBHm4bjyPjs7Vd8pZGH6SRpkNtoIAiw4=',
+    ),
+    authKeyBytes: base64Decode(
+      'BTBZMqHH6r4Tts7J_aSIgg==', // cspell:disable-line
     ),
   );
 

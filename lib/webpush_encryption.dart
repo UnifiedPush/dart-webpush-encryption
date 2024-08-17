@@ -16,7 +16,7 @@ class WebPush {
   ///
   /// Throws DecryptionError (or a subclass) in case of an issue.
   static Future<Uint8List> decrypt(
-    WebPushKeys keys,
+    WebPushKeySet keys,
     Uint8List encryptedBytes,
   ) async {
     try {
@@ -28,9 +28,9 @@ class WebPush {
       var serverPubKey = header.id;
 
       var ikm = await ECE.makeIKM(
-        await keys.publicKey!.pubKey,
-        await keys.privateKey!.privKey,
-        keys.publicKey!.authKey,
+        await keys.publicKey.pubKey,
+        await keys.privateKey.privKey,
+        keys.publicKey.authKey,
         serverPubKey,
       );
 
@@ -51,8 +51,8 @@ class WebPush {
   /// [salt] is optional and will be filled with cryptographically random bytes
   /// if it is not provided. This is mostly useful for debugging.
   static Future<Uint8List> encrypt({
-    required WebPushKeys serverKeys,
-    required WebPushKeys clientKeys,
+    required WebPushKeySet serverKeys,
+    required PublicWebPushKey clientKeys,
     required Uint8List plaintext,
     Uint8List? salt,
   }) async {
@@ -61,13 +61,13 @@ class WebPush {
         salt = Uint8List(16);
         fillRandomBytes(salt);
       }
-      final uaPubKey = await clientKeys.publicKey!.pubKey;
-      final asPubKey = await serverKeys.publicKey!.pubKey;
+      final uaPubKey = await clientKeys.pubKey;
+      final asPubKey = await serverKeys.publicKey.pubKey;
 
       final ikm = await ECE.makeIKMServer(
         asPubKey,
-        await serverKeys.privateKey!.privKey,
-        clientKeys.publicKey!.authKey,
+        await serverKeys.privateKey.privKey,
+        clientKeys.authKey,
         uaPubKey,
       );
 
