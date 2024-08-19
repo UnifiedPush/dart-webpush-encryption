@@ -11,10 +11,12 @@ There are 4 main classes here, `WebPushKeySet`, `PublicWebPushKey`, `PrivateWebP
 
 In `WebPushKeySet`:
 1. Use `.newKeyPair()` generate a new key pair (private & public).
-1. Use `.p256dh` and `.auth` to export the keys into the base64 encoding that can be sent to a server.
-1. Use `.serialize` to serialize the public *AND private keys* for storage. Be careful with this since it contains the private key.
+1. Use `.publicKey` to get the `PublicWebPushKey` of the key set.
+1. Use `.serialize` to serialize the public *AND private keys* for storage. **Be careful with this since it contains the private key.**
    Then, use `WebPushKeys.deserialize` to deserialize that back into an object from the stored string.
 
+In `PublicWebPushKey`:
+1. Use `.p256dh` and `.auth` to export the keys into the base64 encoding that can be sent to a server.
 The `WebPush`class contains two methods:
 1. `.decrypt(keys, encryptedBytes)`. Pass in the keys object and an array of Bytes of the message body. It will return the decrypted bytes.
 2. `.encrypt(serverKeys, clientPubKey, plaintext, salt?)`: Encrypt the plaintext according to the webpush standard.
