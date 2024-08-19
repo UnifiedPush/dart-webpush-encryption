@@ -7,7 +7,7 @@ This is primarily an RFC 8291 (Message Encryption for Web Push) implementation, 
 
 See [example/simple.dart](example/simple.dart).
 
-There are three main classes here, `WebPushKeySet`, `PublicWebPushKey`, `WebPush`.
+There are 4 main classes here, `WebPushKeySet`, `PublicWebPushKey`, `PrivateWebPushKey`, `WebPush`.
 
 In `WebPushKeySet`:
 1. Use `.newKeyPair()` generate a new key pair (private & public).
