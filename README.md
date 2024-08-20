@@ -5,32 +5,33 @@ This is primarily an RFC 8291 (Message Encryption for Web Push) implementation, 
 
 ## Usage
 
-See example/simple.dart.
+See [example/simple.dart](example/simple.dart).
 
-There are two main classes here, WebPushKeys, and WebPush.
+There are 4 main classes here, `WebPushKeySet`, `PublicWebPushKey`, `PrivateWebPushKey`, `WebPush`.
 
-In WebPush keys:
-1. Use `.newKeyPair()` generate a new key.
-1. Use `.p256dh` and `.auth` to export the keys into the base64 encoding that can be sent to a server.
-1. Use `.serialize` to serialize the public *AND private keys* for storage. Be careful with this since it contains the private key.
+In `WebPushKeySet`:
+1. Use `.newKeyPair()` generate a new key pair (private & public).
+1. Use `.publicKey` to get the `PublicWebPushKey` of the key set.
+1. Use `.serialize` to serialize the public *AND private keys* for storage. **Be careful with this since it contains the private key.**
    Then, use `WebPushKeys.deserialize` to deserialize that back into an object from the stored string.
 
-The `WebPush`class contains only one method:
-1. `.decrypt(WebPushKeys keys, Uint8List buf)`. Pass in the keys object and an array of Bytes of the message body. It will return the decrypted bytes.
+In `PublicWebPushKey`:
+1. Use `.p256dh` and `.auth` to export the keys into the base64 encoding that can be sent to a server.
+The `WebPush`class contains two methods:
+1. `.decrypt(keys, encryptedBytes)`. Pass in the keys object and an array of Bytes of the message body. It will return the decrypted bytes.
+2. `.encrypt(serverKeys, clientPubKey, plaintext, salt?)`: Encrypt the plaintext according to the webpush standard.
 
-Note: Be careful to not encode the encrypted bytes as a UTF-8 string anywhere between the HTTP request and decryption; UTF-8 encoding will probably mess up your content.
+> **Warning**
+>
+> Do not encode the encrypted bytes as a UTF-8 string anywhere between the HTTP request and decryption; UTF-8 encoding will probably mess up your content.
 
 ## Installing this package
 
-This package can only be used as a git dependency, and cannot be published to pub.dev because it relies on a git version of webcrypto that has not been published to pub.dev.
-To use this package, add the following to your pubspec.yaml
+Add the following to your pubspec.yaml
 
 ```yaml
 dependencies:
-  webpush_encryption:
-    git:
-      url: https://github.com/UnifiedPush/dart-webpush-encryption.git
-      ref: v0.1.0
+  webpush_encryption: ^1.0.0
 ```
 
 
