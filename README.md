@@ -17,6 +17,7 @@ In `WebPushKeySet`:
 
 In `PublicWebPushKey`:
 1. Use `.p256dh` and `.auth` to export the keys into the base64 encoding that can be sent to a server.
+
 The `WebPush`class contains two methods:
 1. `.decrypt(keys, encryptedBytes)`. Pass in the keys object and an array of Bytes of the message body. It will return the decrypted bytes.
 2. `.encrypt(serverKeys, clientPubKey, plaintext, salt?)`: Encrypt the plaintext according to the webpush standard.
