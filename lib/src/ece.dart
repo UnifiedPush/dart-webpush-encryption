@@ -3,6 +3,8 @@ import 'dart:typed_data';
 
 import 'package:webcrypto/webcrypto.dart';
 
+import 'curve.dart';
+
 const _saltSize = 16;
 const _contentEncryptionKeySize = 16;
 
@@ -28,6 +30,27 @@ class ECE {
     ];
 
     var sharedEcdhSecret = mixKeys(clientPriv, serverPub);
+
+    var hkdfSecretKey =
+        await HkdfSecretKey.importRawKey(await sharedEcdhSecret);
+    var ikm = await hkdfSecretKey.deriveBits(
+        _ikmSize * 8, Hash.sha256, authKey, info);
+    return HkdfSecretKey.importRawKey(ikm);
+  }
+
+  static Future<HkdfSecretKey> makeIKMServer(
+      EcdhPublicKey serverPub,
+      EcdhPrivateKey serverPriv,
+      Uint8List authKey,
+      EcdhPublicKey clientPub) async {
+    var info = [
+      ...'WebPush: info'.codeUnits,
+      0,
+      ...(await clientPub.exportRawKey()),
+      ...(await serverPub.exportRawKey()),
+    ];
+
+    var sharedEcdhSecret = mixKeys(serverPriv, clientPub);
 
     var hkdfSecretKey =
         await HkdfSecretKey.importRawKey(await sharedEcdhSecret);
@@ -62,6 +85,21 @@ class ECE {
     return stripPadding(cleartext);
   }
 
+  static Future<Uint8List> encryptRecord(
+    AesGcmSecretKey key,
+    Uint8List nonce,
+    Uint8List plainText,
+  ) async {
+    final content = Uint8List(plainText.length + 1);
+    content.setAll(0, plainText);
+    content[plainText.length] = 0x02; // end record padding
+
+    var cipherText = await key.encryptBytes(content, nonce,
+        tagLength: _contentEncryptionKeySize * 8);
+
+    return cipherText;
+  }
+
   static Uint8List stripPadding(Uint8List content) {
     // 0x01 is padding delim for non-last records, 0x02 is for the last record
     // a proper ECE library should probably communicate this last or not last record thing with other functions
@@ -73,8 +111,6 @@ class ECE {
     return content.sublist(0, paddingIndex);
   }
 }
-
-const curve = EllipticCurve.p256;
 
 class Header {
   final Uint8List salt;
@@ -104,6 +140,21 @@ class Header {
 
     return Header(salt, recordSize, serverPubKeySize, await serverPubKey);
   }
+
+  Future<Uint8List> toRaw() async {
+    final raw = Uint8List(length);
+
+    raw.setRange(0, _saltSize, salt);
+
+    final byteData = raw.buffer.asByteData(_saltSize);
+    byteData.setUint32(0, rs);
+    raw[_saltSize + 4] = idlen;
+    raw.setAll(_saltSize + 4 + 1, await id.exportRawKey());
+    return raw;
+  }
+
+  @override
+  String toString() => 'Header(${(salt: salt, recordSize: rs, idlen: idlen)})';
 
   int get length => _saltSize + 4 + 1 + idlen;
 }
