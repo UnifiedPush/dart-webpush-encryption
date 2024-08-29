@@ -1,6 +1,6 @@
 name: webpush_encryption
 description: HTTP-ECE decryption for WebPush content based on RFC 8291.
-version: 1.0.0
+version: 1.0.0-rc1
 homepage: https://codeberg.org/UnifiedPush/dart-webpush-encryption
 repository: https://codeberg.org/UnifiedPush/dart-webpush-encryption
 issue_tracker: https://codeberg.org/UnifiedPush/dart-webpush-encryption/issues
