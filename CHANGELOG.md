@@ -1,4 +1,4 @@
-## 1.0.0
+## 1.0.0-rc1
 
 - WebPush encryption and decryption.
 - Breaking changes:
